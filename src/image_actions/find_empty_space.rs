@@ -36,31 +36,27 @@ pub fn find_margins(img: &DynamicImage, threshold: f64) -> ((u32, u32), (u32, u3
         .find(|&y| {
             process_line(width, threshold, &top_left_pixel, |x| img.get_pixel(x, y)) as f64 / width as f64 > 0.1
         })
-        .unwrap_or(height)
-        - 1;
+        .unwrap_or(0);
 
     let left_margin = (0..width)
         .find(|&x| {
             process_line(height, threshold, &top_left_pixel, |y| img.get_pixel(x, y)) as f64 / height as f64 > 0.1
         })
-        .unwrap_or(width)
-        - 1;
+        .unwrap_or(0);
 
     let bottom_margin = (0..height)
         .rev()
         .find(|&y| {
             process_line(width, threshold, &top_left_pixel, |x| img.get_pixel(x, y)) as f64 / width as f64 > 0.1
         })
-        .unwrap_or(0)
-        + 1;
+        .unwrap_or(height);
 
     let right_margin = (0..width)
         .rev()
         .find(|&x| {
             process_line(height, threshold, &top_left_pixel, |y| img.get_pixel(x, y)) as f64 / height as f64 > 0.1
         })
-        .unwrap_or(0)
-        + 1;
+        .unwrap_or(width);
 
     ((left_margin, top_margin), (right_margin, bottom_margin))
 }
@@ -84,7 +80,7 @@ mod tests {
 
         let margins = find_margins(&mut img, 100.0);
 
-        assert_eq!(margins.0 .1, 99);
+        assert_eq!(margins.0 .1, 100);
     }
 
     #[test]
@@ -99,7 +95,7 @@ mod tests {
 
         let margins = find_margins(&mut img, 100.0);
 
-        assert_eq!(margins.0 .0, 99);
+        assert_eq!(margins.0 .0, 100);
     }
 
     #[test]
@@ -114,7 +110,7 @@ mod tests {
 
         let margins = find_margins(&mut img, 100.0);
 
-        assert_eq!(margins.1 .0, 200);
-        assert_eq!(margins.1 .1, 200);
+        assert_eq!(margins.1 .0, 199);
+        assert_eq!(margins.1 .1, 199);
     }
 }
