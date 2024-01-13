@@ -13,8 +13,14 @@ fn color_distance(&pixel: &Rgba<u8>, &reference_pixel: &Rgba<u8>) -> f64 {
     distance
 }
 
-fn process_line<F>(length: u32, threshold: f64, &reference_pixel: &Rgba<u8>, mut get_pixel: F) -> u32
-where F: FnMut(u32) -> Rgba<u8>,
+fn process_line<F>(
+    length: u32,
+    threshold: f64,
+    &reference_pixel: &Rgba<u8>,
+    mut get_pixel: F,
+) -> u32
+where
+    F: FnMut(u32) -> Rgba<u8>,
 {
     let mut counter = 0;
     for pos in 0..length {
@@ -34,27 +40,35 @@ pub fn find_margins(img: &DynamicImage, threshold: f64) -> ((u32, u32), (u32, u3
     // Refactored margin finding logic
     let top_margin = (0..height)
         .find(|&y| {
-            process_line(width, threshold, &top_left_pixel, |x| img.get_pixel(x, y)) as f64 / width as f64 > 0.1
+            process_line(width, threshold, &top_left_pixel, |x| img.get_pixel(x, y)) as f64
+                / width as f64
+                > 0.1
         })
         .unwrap_or(0);
 
     let left_margin = (0..width)
         .find(|&x| {
-            process_line(height, threshold, &top_left_pixel, |y| img.get_pixel(x, y)) as f64 / height as f64 > 0.1
+            process_line(height, threshold, &top_left_pixel, |y| img.get_pixel(x, y)) as f64
+                / height as f64
+                > 0.1
         })
         .unwrap_or(0);
 
     let bottom_margin = (0..height)
         .rev()
         .find(|&y| {
-            process_line(width, threshold, &top_left_pixel, |x| img.get_pixel(x, y)) as f64 / width as f64 > 0.1
+            process_line(width, threshold, &top_left_pixel, |x| img.get_pixel(x, y)) as f64
+                / width as f64
+                > 0.1
         })
         .unwrap_or(height);
 
     let right_margin = (0..width)
         .rev()
         .find(|&x| {
-            process_line(height, threshold, &top_left_pixel, |y| img.get_pixel(x, y)) as f64 / height as f64 > 0.1
+            process_line(height, threshold, &top_left_pixel, |y| img.get_pixel(x, y)) as f64
+                / height as f64
+                > 0.1
         })
         .unwrap_or(width);
 

@@ -1,6 +1,10 @@
-use rayon::iter::{ParallelIterator, IntoParallelIterator};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use std::{
+    env,
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
 use walkdir::WalkDir;
-use std::{env, ffi::OsStr, path::{Path, PathBuf}};
 
 mod image_actions;
 mod misc;
@@ -21,11 +25,11 @@ fn main() {
 
     let input_directory = args[1].as_str();
     let output_directory = args[2].as_str();
-    
-    let images_result = find_jpg_images(input_directory);
+
+    let images_result = find_images(input_directory);
     let images = images_result.expect("Failed to list images");
     println!("Found {} images", images.len());
-    
+
     println!("Creating output directory tree {}", output_directory);
     misc::make_directories(&images, output_directory);
 
@@ -51,15 +55,21 @@ fn main() {
     });
 }
 
-fn find_jpg_images<P: AsRef<Path>>(path: P) -> Result<Vec<PathBuf>, std::io::Error> {
-    let mut jpg_images = Vec::new();
+fn find_images<P: AsRef<Path>>(path: P) -> Result<Vec<PathBuf>, std::io::Error> {
+    let mut images = Vec::new();
 
-    for entry in WalkDir::new(path.as_ref()).into_iter().filter_map(|e| e.ok()) {
+    for entry in WalkDir::new(path.as_ref())
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
         let path = entry.path();
-        if path.is_file() && path.extension() == Some(OsStr::new("jpg")) {
-            jpg_images.push(path.to_path_buf());
+        if path.is_file() && path.extension() == Some(OsStr::new("jpg"))
+            || path.extension() == Some(OsStr::new("jpeg"))
+            || path.extension() == Some(OsStr::new("png"))
+        {
+            images.push(path.to_path_buf());
         }
     }
 
-    Ok(jpg_images)
+    Ok(images)
 }
