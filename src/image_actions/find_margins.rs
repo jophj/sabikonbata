@@ -1,5 +1,3 @@
-extern crate image;
-
 use image::{DynamicImage, GenericImageView, Rgba};
 
 fn color_distance(&pixel: &Rgba<u8>, &reference_pixel: &Rgba<u8>) -> f64 {
@@ -80,7 +78,7 @@ pub fn find_margins(img: &DynamicImage, threshold: f64) -> ((u32, u32), (u32, u3
 mod tests {
     use image::GenericImage;
 
-    use crate::image_actions::find_empty_space::find_margins;
+    use crate::image_actions::find_margins::find_margins;
 
     #[test]
     fn test_find_top_margin() {
