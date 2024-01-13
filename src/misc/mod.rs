@@ -1,6 +1,13 @@
 use std::path::PathBuf;
 
-// function that transform a PathBuf like ./images/2020/01/01/image.jpg to ./cropped/2020/01/01/image.jpg
+pub fn make_directories(images: &Vec<PathBuf>, output_directory: &str) {
+    for image in images {
+        let new_image_path = swap_path_root(&image, output_directory);
+        std::fs::create_dir_all(new_image_path.parent().unwrap()).unwrap();
+    }
+}
+
+// Transform a PathBuf like ./images/2020/01/01/image.jpg to ./cropped/2020/01/01/image.jpg
 pub fn swap_path_root(path: &PathBuf, new_root: &str) -> PathBuf {
     // skip all current folder components
     let mut to_skip_counter: u8 = 0;
@@ -13,8 +20,6 @@ pub fn swap_path_root(path: &PathBuf, new_root: &str) -> PathBuf {
     }
 
     let latest_components = path.components().skip((to_skip_counter + 1) as usize);
-    println!("Latest components: {:?}", path.components().collect::<PathBuf>());
-    println!("Latest components: {:?}", latest_components.clone().collect::<PathBuf>());
     
     let mut new_path = PathBuf::from(new_root);
     for component in latest_components {
@@ -24,7 +29,6 @@ pub fn swap_path_root(path: &PathBuf, new_root: &str) -> PathBuf {
     new_path
 }
 
-// unit tests for get_new_image_path
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -49,12 +53,13 @@ mod tests {
         );
     }
 
+    #[test]
     fn with_absolute_path_should_swap_path() {
         let path = PathBuf::from("/images/2020/01/01/image.jpg");
         let swapped_path = swap_path_root(&path, "./cropped");
         assert_eq!(
             swapped_path,
-            PathBuf::from("./cropped/2020/01/01/image.jpg")
+            PathBuf::from("./cropped/images/2020/01/01/image.jpg")
         );
     }
 }

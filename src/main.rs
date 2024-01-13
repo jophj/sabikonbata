@@ -14,10 +14,23 @@ pub fn load_image(path: &Path) -> image::DynamicImage {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    // list all files in the directory from args1 with the standard library
-    let images = find_jpg_images(args[1].as_str());
+    if args.len() < 3 {
+        println!("Usage: sabikonbata <input_directory> <output_directory>");
+        return;
+    }
 
-    images.unwrap().into_par_iter().for_each(|file| {
+    let input_directory = args[1].as_str();
+    let output_directory = args[2].as_str();
+    
+    let images_result = find_jpg_images(input_directory);
+    let images = images_result.expect("Failed to list images");
+    println!("Found {} images", images.len());
+    
+    println!("Creating output directory tree {}", output_directory);
+    misc::make_directories(&images, output_directory);
+
+    println!("Start processing");
+    images.into_par_iter().for_each(|file| {
         println!("Processing {}", file.display());
         let mut img = load_image(&file);
         let margins = find_margins(&mut img, 100.0);
@@ -29,10 +42,8 @@ fn main() {
             margins.1 .1 - margins.0 .1,
         );
         // save the image to a new file path, keeping the original structure
-        let latest_components = file.components().take(file.components().count() - 3);
-        println!("Latest components: {:?}", file.components().collect::<PathBuf>());
-        let new_image_path = "./cropped/".to_owned() + &latest_components.collect::<PathBuf>().to_str().unwrap() + "/" + file.file_name().unwrap().to_str().unwrap();
-        println!("Saving image to {}", new_image_path);
+        let new_image_path = misc::swap_path_root(&file, output_directory);
+        println!("Saving image to {}", new_image_path.display());
         cropped_img
             .to_image()
             .save(new_image_path)
