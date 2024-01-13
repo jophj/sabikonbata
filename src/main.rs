@@ -1,15 +1,13 @@
-use rayon::iter::{ParallelIterator, IntoParallelIterator};
-use walkdir::WalkDir;
-use std::{env, ffi::OsStr, path::{Path, PathBuf}};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use std::
+    env
+;
 
-mod image_actions;
+use crate::image_actions::{find_margins::find_margins, crop::crop};
+
 mod misc;
-
-use image_actions::find_empty_space::find_margins;
-
-pub fn load_image(path: &Path) -> image::DynamicImage {
-    image::open(path).expect("Failed to open image")
-}
+mod image_actions;
+mod filesystem;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -21,20 +19,20 @@ fn main() {
 
     let input_directory = args[1].as_str();
     let output_directory = args[2].as_str();
-    
-    let images_result = find_jpg_images(input_directory);
+
+    let images_result = filesystem::find_images(input_directory);
     let images = images_result.expect("Failed to list images");
     println!("Found {} images", images.len());
-    
+
     println!("Creating output directory tree {}", output_directory);
     misc::make_directories(&images, output_directory);
 
     println!("Start processing");
     images.into_par_iter().for_each(|file| {
         println!("Processing {}", file.display());
-        let mut img = load_image(&file);
+        let mut img = filesystem::load_image(&file);
         let margins = find_margins(&mut img, 100.0);
-        let cropped_img = image_actions::crop(
+        let cropped_img = crop(
             &mut img,
             margins.0 .0,
             margins.0 .1,
@@ -51,15 +49,3 @@ fn main() {
     });
 }
 
-fn find_jpg_images<P: AsRef<Path>>(path: P) -> Result<Vec<PathBuf>, std::io::Error> {
-    let mut jpg_images = Vec::new();
-
-    for entry in WalkDir::new(path.as_ref()).into_iter().filter_map(|e| e.ok()) {
-        let path = entry.path();
-        if path.is_file() && path.extension() == Some(OsStr::new("jpg")) {
-            jpg_images.push(path.to_path_buf());
-        }
-    }
-
-    Ok(jpg_images)
-}
