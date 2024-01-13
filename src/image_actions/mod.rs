@@ -1,5 +1,7 @@
 extern crate image;
 
+pub mod find_empty_space;
+
 use image::{imageops, DynamicImage};
 
 pub fn crop(
