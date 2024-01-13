@@ -1,10 +1,11 @@
-use rayon::iter::{ParallelBridge, ParallelIterator, IntoParallelIterator};
+use rayon::iter::{ParallelIterator, IntoParallelIterator};
 use walkdir::WalkDir;
-use std::{env, fs::{self, DirEntry, ReadDir}, iter::Filter, error::Error, ffi::OsStr, path::{Path, PathBuf}};
-
-use image_actions::find_empty_space::find_margins;
+use std::{env, ffi::OsStr, path::{Path, PathBuf}};
 
 mod image_actions;
+mod misc;
+
+use image_actions::find_empty_space::find_margins;
 
 pub fn load_image(path: &Path) -> image::DynamicImage {
     image::open(path).expect("Failed to open image")
@@ -27,7 +28,10 @@ fn main() {
             margins.1 .0 - margins.0 .0,
             margins.1 .1 - margins.0 .1,
         );
-        let new_image_path = "./cropped/".to_owned() + file.file_name().unwrap().to_str().unwrap();
+        // save the image to a new file path, keeping the original structure
+        let latest_components = file.components().take(file.components().count() - 3);
+        println!("Latest components: {:?}", file.components().collect::<PathBuf>());
+        let new_image_path = "./cropped/".to_owned() + &latest_components.collect::<PathBuf>().to_str().unwrap() + "/" + file.file_name().unwrap().to_str().unwrap();
         println!("Saving image to {}", new_image_path);
         cropped_img
             .to_image()
