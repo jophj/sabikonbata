@@ -57,7 +57,7 @@ fn main() {
         stats.progress.fetch_add(1, atomic::Ordering::SeqCst);
         let progress = stats.progress.load(atomic::Ordering::SeqCst);
         print!(
-            "\r{} {:4}/{:<4} {:.2} images/second in {:.2} seconds",
+            "\r\x1b[34m{}\x1b[0m {:4}/{:<4} {:.2} images/second in {:.2} seconds",
             PROGRESS_BAR[progress as usize % PROGRESS_BAR.len()],
             progress,
             images_count,
@@ -69,7 +69,7 @@ fn main() {
     //clear the progress bar
     print!("\r{}", " ".repeat(64));
     println!(
-        "\r{} {:4}/{:<4} {:.2} images/second in {:.2} seconds",
+        "\r\x1b[32m{}\x1b[0m {:4}/{:<4} {:.2} images/second in {:.2} seconds",
         PROGRESS_BAR_FULL,
         images_count,
         images_count,
