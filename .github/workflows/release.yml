@@ -23,6 +23,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Versions
+        run: |
+          rustc --version --verbose
+          cargo --version --verbose
+
       - uses: actions/checkout@v4
 
       - name: Release build
