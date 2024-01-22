@@ -28,6 +28,9 @@ jobs:
           rustc --version --verbose
           cargo --version --verbose
 
+      - name: Install rust target
+        run: rustup target add ${{ matrix.target }}
+
       - uses: actions/checkout@v4
 
       - name: Release build
