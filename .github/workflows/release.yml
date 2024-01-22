@@ -39,11 +39,11 @@ jobs:
 
       - name: Compress binary
         if: ${{ runner.os != 'Windows'  }}
-        run: tar -czf ${{ matrix.target }}.tar.gz --directory=target/release/${{ matrix.target }} sabikonbata
+        run: tar -czf ${{ matrix.target }}.tar.gz --directory=target/${{ matrix.target }}/release sabikonbata
 
       - name: Compress binary on Windows
         if: ${{ runner.os == 'Windows'  }}
-        run: Compress-Archive target/release/${{ matrix.target }}/sabikonbata.exe -Destination ${{ matrix.target }}.zip
+        run: Compress-Archive target/${{ matrix.target }}/release/sabikonbata.exe -Destination ${{ matrix.target }}.zip
 
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
