@@ -53,3 +53,4 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{matrix.target}}${{ runner.od == 'Windows' && '.zip' || '.tar.gz' }}
           asset_name: ${{matrix.target}}${{ runner.od == 'Windows' && '.zip' || '.tar.gz' }}
+          asset_content_type: application/gzip
