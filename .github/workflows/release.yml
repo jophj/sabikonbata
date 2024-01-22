@@ -50,6 +50,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.build_release.outputs.upload_url  }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{matrix.target}}${{ runner.od == 'Windows' && '.zip' || '.tar.gz' }}
           asset_name: ${{matrix.target}}${{ runner.od == 'Windows' && '.zip' || '.tar.gz' }}
